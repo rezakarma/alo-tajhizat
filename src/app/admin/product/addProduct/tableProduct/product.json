@@ -1,0 +1,32 @@
+[
+    
+        {
+            "id": 1,
+            "title":"sony",
+            "description":"asdafdfgh",
+            "details":[
+                {"title":"size","description":"asdafafghjgk"},
+                {"title":"andaze","description":"fghjgk"}
+            ],
+            "supplyType":"sellCheckbox",
+            "price":"25000",
+            "category":"camera",
+            "brand":"sony"
+        },
+        
+        {
+            "id": 2,
+            "title":"canon",
+            "description":"ghjghjk",
+            "details":[
+                {"title":"size","description":"acvbcbk"},
+                {"title":"andaze","description":"fasdk"}
+            ],
+            "supplyType":"rentCheckbox",
+            "price":"70000",
+            "category":"camera",
+            "brand":"canon"
+        }
+    
+
+]

@@ -1,0 +1,345 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// schemas section 
+//-------------------------------------------------------
+// 1- user schema 
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id                       String                    @id @default(auto()) @map("_id") @db.ObjectId
+  phoneNumber              String                    @unique
+  userName                 String                    @unique
+  email                    String                    @unique
+  password                 String
+  role                     UserRole                  @default(USER)
+  phoneNumberVerified      Boolean                   @default(true)
+  emailVerified            Boolean                   @default(true)
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  orders                   Order[]
+  comments                 Comment[]
+  products                 Product[]
+  adminOrder               adminOrder[]
+  notification             Notifications[]
+  profile                  Profile?
+  changeVerificationNumber changeVerificationNumber?
+
+  @@unique([id, phoneNumber])
+}
+
+// 2- profile schema 
+
+model Profile {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  nationalCode    String
+  birthDate       BirthDate?
+  job             String?
+  landlineNumber  String
+  fatherName      String
+  PhotoWithIDCard PhotoWithIDCard
+  firstName       String
+  lastName        String
+  profileImage    String?
+  profileVerified Boolean         @default(false)
+  addresses       Address[]
+  userId          String          @unique @db.ObjectId
+  user            User            @relation(fields: [userId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+type PhotoWithIDCard {
+  verify Boolean
+  photo  String
+}
+
+type BirthDate {
+  birthDate        Json
+  solarBirthDate   String
+  ISO8601BirthDate DateTime
+}
+
+// 3- order schema 
+
+model Order {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  description   String?
+  price         String
+  status        String
+  discountCode  String?
+  adminsOfOrder adminOrder[]
+  userId        String         @unique @db.ObjectId
+  user          User           @relation(fields: [userId], references: [id])
+  productsList  orderProduct[]
+  deliveryType  DeliveryType
+  deliveryTime  DeliveryTime
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum DeliveryType {
+  inPerson
+  Posting
+}
+
+enum DeliveryTime {
+  NIGHT
+  AFTERNON
+}
+
+model adminOrder {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId        String   @unique @db.ObjectId
+  Order          Order    @relation(fields: [orderId], references: [id])
+  userId         String   @unique @db.ObjectId
+  responderAdmin User     @relation(fields: [userId], references: [id])
+  logOfAction    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model orderProduct {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  count     Int
+  orderId   String  @unique @db.ObjectId
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String  @unique @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// 4- product 
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SupplyType {
+  SELL
+  RENT
+  SELL_RENT
+  NONE
+}
+
+model Product {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  images       String[]
+  title        String
+  description  String
+  model        String
+  details      productDetails[]
+  supplyType   SupplyType
+  sellPrice    String?          @default("0")
+  rentPrice    String?          @default("0")
+  status       ProductStatus    @default(ACTIVE)
+  categoryName String
+  category     ProductCategory  @relation(fields: [categoryId], references: [id])
+  categoryId   String           @db.ObjectId
+  typeName String
+  type     ProductType  @relation(fields: [typeId], references: [id])
+  typeId   String           @db.ObjectId
+  brandName    String
+  brand        ProductBrand     @relation(fields: [brandId], references: [id])
+  brandId      String           @db.ObjectId
+  comments     Comment[]
+  orderProduct orderProduct[]
+  userId       String           @db.ObjectId
+  userAdded    User             @relation(fields: [userId], references: [id])
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+type productDetails {
+  title       String
+  description String
+}
+
+// 5- contact us schema 
+model ContactUs {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String
+  phoneNumber String?
+  description String
+  createdAt   DateTime @default(now())
+}
+
+// 6- notification schema 
+model Notifications {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  details     String?
+  createdAt   DateTime @default(now())
+}
+
+// 7- address schema 
+model Address {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  address       String
+  plate         String?
+  BldName       String?
+  floor         String?
+  unit          String?
+  city          String
+  state         String
+  postalCode    String
+  coordinates   GeoPoint
+  userProfileId String   @db.ObjectId
+  userProfile   Profile  @relation(fields: [userProfileId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+type GeoPoint {
+  lat String
+  lon String
+}
+
+// 8 phonenumber schema 
+// type PhoneNumber {
+//   // id                String             @id @default(auto()) @map("_id") @db.ObjectId
+//   phoneNumber       String
+//   verificationData  verificationCode
+//   countOfTryGetCode Int              @default(0)
+// }
+
+model phoneNumberForVerification {
+  id                         String                     @id @default(auto()) @map("_id") @db.ObjectId
+  phoneNumber                String                     @unique
+  verificationData           verificationCode
+  countOfTryGetCodeForChange Int                        @default(1)
+  countOfTryGetCodeForSignup Int                        @default(1)
+  signupVerificationNumber   signupVerificationNumber[] @relation(fields: [signupVerificationNumberId], references: [id])
+  signupVerificationNumberId String[]                   @db.ObjectId
+  changeVerificationNumber   changeVerificationNumber?  @relation(fields: [changeVerificationNumberId], references: [id])
+  changeVerificationNumberId String?                    @db.ObjectId
+}
+
+// 9- verify code schema
+type verificationCode {
+  // id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  code       String
+  expireDate DateTime
+  // phoneNumber PhoneNumber @relation(fields: [phoneNumberId], references: [id])
+  // phoneNumberId String @unique @db.ObjectId
+  createdAt  DateTime @default(now())
+  // updatedAt  DateTime    @updatedAt
+}
+
+// 10 signup verify number 
+model signupVerificationNumber {
+  id                  String                       @id @default(auto()) @map("_id") @db.ObjectId
+  identifier          String                       @unique
+  ipAddress           String
+  phoneNumbers        phoneNumberForVerification[] @relation(fields: [phoneNumbersID], references: [id])
+  verifyPhoneNumber   Boolean                      @default(false)
+  phoneNumbersID      String[]                     @db.ObjectId
+  countOfChnageNumber Int                          @default(1)
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+}
+
+// 11 change VerificationNumber 
+model changeVerificationNumber {
+  id                     String                       @id @default(auto()) @map("_id") @db.ObjectId
+  user                   User                         @relation(fields: [userId, userCurrentPhoneNumber], references: [id, phoneNumber])
+  userId                 String                       @unique @db.ObjectId
+  userCurrentPhoneNumber String                       @unique
+  phoneNumbers           phoneNumberForVerification[]
+  countOfChnageNumber    Int                          @default(1)
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+
+  @@unique([userId, userCurrentPhoneNumber])
+}
+
+//12 commehnt schema 
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  productId String   @unique @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//13 addProduct setting
+model ProductBrand {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  persianBrand String
+  englishBrand String    @unique
+  products     Product[]
+  createdAt    DateTime  @updatedAt
+}
+
+model ProductCategory {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  persianCategory String
+  englishCategory String    @unique
+  products        Product[]
+  productTypes    ProductType[]
+  createdAt       DateTime  @updatedAt
+}
+
+model ProductType {
+  id String  @id @default(auto()) @map("_id") @db.ObjectId
+  persianType String
+  englishType String
+  products        Product[]
+  CategoryId String   @db.ObjectId
+  productCategory   ProductCategory  @relation(fields: [CategoryId], references: [id])
+
+}
+
+model verificationToken {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  email                String   @unique
+  currentEmail         String   @unique
+  token                String   @unique
+  countOfgenerateToken Int      @default(1)
+  expireDate           DateTime
+
+  @@unique([email, token])
+}
+
+model resetPassword {
+  id                      String                  @id @default(auto()) @map("_id") @db.ObjectId
+  identifier              String                  @unique
+  ipAddress               String
+  emails                  emailForResetPassword[] @relation(fields: [emailForResetPasswordID], references: [id])
+  emailForResetPasswordID String[]                @db.ObjectId
+  countOfChangeEmail      Int                     @default(1)
+  createdAt               DateTime                @default(now())
+}
+
+model emailForResetPassword {
+  id                   String          @id @default(auto()) @map("_id") @db.ObjectId
+  email                String          @unique
+  token                String          @unique
+  countOfgenerateToken Int             @default(1)
+  expireDate           DateTime
+  resetPassword        resetPassword[] @relation(fields: [resetPasswordId], references: [id])
+  resetPasswordId      String[]        @db.ObjectId
+
+  @@unique([email, token])
+}
