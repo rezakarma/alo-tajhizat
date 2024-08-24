@@ -1,3 +1,4 @@
+"use client"
 import { Tabs, Tab, Card, CardBody, CardHeader } from "@nextui-org/react";
 import {
   Table,
@@ -33,7 +34,7 @@ const comments = [
   { title: "مهدی", value: "sمثل همیشه عالی و به موقع به دستم رسیدny" },
 ];
 
-const ProductInfos = () => 
+const ProductInfos = ({description,details,img,title,brand,model,rentPrice}) => 
 {
   let onSelectionChangeFn = (key) => {}
   useEffect(()=>{
@@ -78,7 +79,7 @@ const ProductInfos = () =>
         >
           <Tab title="معرفی" className="w-full"></Tab>
           <Tab title="مشخصات" className="w-full"></Tab>
-          <Tab title="نظرات" className="w-full"></Tab>
+          {/* <Tab title="نظرات" className="w-full"></Tab> */}
         </Tabs>
 
         <div className="flex flex-col gap-5">
@@ -87,34 +88,28 @@ const ProductInfos = () =>
               <span>معرفی</span>
             </CardHeader>
             <CardBody className="text-right gap-5">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
+             {description}
             </CardBody>
           </Card>
 
           <Card className="dark:bg-slate-800" ref={specificationsSection}>
             <CardHeader>مشخصات</CardHeader>
             <CardBody className="text-right gap-5 ">
-              دوربین سونی الفا 7 عالیه خیلی خوبه من خودم واسه خونه همینو بردم
-              واسه داداشم هم بردم همه راضی ام عالیه خیلی خوبه شمام ببر راضی
-              نبودی بیار برام ...
-              <ProductInfosTable infos={infos} />
+              <ProductInfosTable details={details} />
             </CardBody>
           </Card>
 
-          <Card className="dark:bg-slate-800" ref={commentsSections}>
+          {/* <Card className="dark:bg-slate-800" ref={commentsSections}>
             <CardHeader>نظرات</CardHeader>
             <CardBody className="text-right gap-5">
               Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
               officia deserunt mollit anim id est laborum.
               <ProductInfosTable infos={comments} />
             </CardBody>
-          </Card>
+          </Card> */}
         </div>
       </div>
-      <ProductInfosOrderCard />
+      <ProductInfosOrderCard img={img} title={title} brand={brand} model={model} rentPrice={rentPrice}/>
     </div>
   );
 };

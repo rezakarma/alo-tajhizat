@@ -6,6 +6,8 @@ import { addProductSettingAdminSchema } from '@/schema/index'
 import GetProductBrand from "@/data/products/getProductBrands";
 import GetProductGategory from "@/data/products/getProductGategory";
 import { toast } from "sonner";
+import GetCategoryTypes from "@/data/products/getCategoryTypes";
+import TypeList from "./categoryTypeList/typeList";
 const initialState = {
   categoryList: [],
   newCategory:null,
@@ -35,6 +37,17 @@ const AddTypeProduct = () => {
     }
     fetchBrands()
   },[])
+  
+  // useEffect(() => {
+  //   const fetchCategoryTypes =async () => {
+  //     const categoryTypes = await GetCategoryTypes(state.newCategory);
+  //     console.log('categoryTypes ', categoryTypes)
+  //     return categoryTypes
+  //   }
+  //   if(state.newCategory !== '' && state.newCategory !== null) {
+  //     fetchCategoryTypes()
+  //   }
+  // },[state.newCategory])
   
   const sendProductType = async(data) => {
     try{const result = await fetch('/api/productType', {
@@ -103,6 +116,7 @@ const AddTypeProduct = () => {
         title="اضافه کردن نوع محصول"
         onSubmitHandler={onSubmit}
       />
+      <TypeList id={state.newCategory}/>
     </>
   );
 };

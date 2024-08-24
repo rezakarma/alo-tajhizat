@@ -88,6 +88,7 @@ export async function DELETE(request: NextRequest, response: NextResponse) {
     return NextResponse.json({ success: "دسته بندی مورد نظر با موفقیت حذف شد"})
     
   }catch(error) {
+    console.log('deleteCategory error', error)
     return NextResponse.json({
       error: "در هنگام حذف برند خطایی رخ داده ، عملیات ناموفق",
     });

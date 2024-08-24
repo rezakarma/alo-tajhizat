@@ -31,7 +31,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/api/upload/route.js", "public/assets/authSvgs/newVerification.js", "src/hooks/useCurrentUser.ts", "src/lib/upload.jsx", "src/app/create-profile/page.jsx", "src/app/admin/product/editProduct/editProductImage.jsx", "src/app/admin/product/productsList"  ],
+, "src/app/api/upload/route.js", "public/assets/authSvgs/newVerification.js", "src/hooks/useCurrentUser.ts", "src/lib/upload.jsx", "src/app/create-profile/page.jsx", "src/app/admin/product/editProduct/editProductImage.jsx", "src/app/admin/product/productsList", "src/store/filtering-slice.js"  ],
   "exclude": [
     "node_modules"
   ]

@@ -14,7 +14,7 @@ const ProfileEditorModal = (props) => {
 
 
     return ( 
-        <Modal isOpen={modalState} onOpenChange={onOpenChange}
+        <Modal className="z-100" isOpen={modalState} onOpenChange={onOpenChange}
         onClose={() => {dispatch(profileEditMoadalAction.closeModal(props.modalID))
           dispatch(
             uiActions.showNotification({

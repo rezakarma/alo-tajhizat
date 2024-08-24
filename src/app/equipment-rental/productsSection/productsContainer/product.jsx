@@ -1,15 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import YellowCircleArrow from "../../../../../public/assets/yellowCircleArrow";
 import ProductDecreaseIncrease from "./productDecreaseIncrease";
 import { Card, Skeleton, Button } from "@nextui-org/react";
-
+import Link from "next/link";
+import Image from "next/image";
+import { ShoppingCart, Plus } from "lucide-react";
+import { addProduct } from "@/store/cart-slice";
+import { useDispatch } from "react-redux";
 const Product = (props) => {
   const [isLoaded, setIsLoaded] = useState(false);
-
+  const [produts, setProducts] = useState();
+  const dispatch = useDispatch();
   const toggleLoad = () => {
     setIsLoaded(!isLoaded);
+  };
+
+  const addToCartHandler = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dispatch(addProduct(props.id));
   };
 
   return (
@@ -40,33 +51,44 @@ const Product = (props) => {
             variant="flat"
             color="secondary"
             onPress={toggleLoad}
-          >
+            >
             {isLoaded ? "Show" : "Hide"} Skeleton
-          </Button> */}
+            </Button> */}
         </div>
       )}
       {!isLoaded && (
-        <div className={`flex flex-col gap-3  ${props.className}`}>
-          <div className="group flex flex-col dark:bg-primaryDark2 w-64 h-64 shadow-lg rounded-[25px] hover:scale-105 transition-all hover:shadow-2xl">
-            <img
-              src="https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1670426607/Croma%20Assets/Imaging/Camera%20and%20Camcorders/Images/211200_3_f1q3br.png"
-              className="w-full h-3/4 rounded-tl-[25px] rounded-tr-[25px] border-2 border-primary dark:border-primaryYellow dark:bg-slate-600 group-hover:border-primaryLight object-contain"
-              alt="product"
-            />
-            <div className="w-full h-1/4 rounded-bl-[25px] rounded-br-[25px]">
-              <div className="flex justify-center mt-1.5  ">
-                <span className="font-bold">سونی alpha 7 R3</span>
-                <ProductDecreaseIncrease />
-              </div>
-              <div className="flex justify-center items-center gap-5 -mt-2">
-                <h6>
-                  تومان<span>500/000</span>
-                </h6>
-                <YellowCircleArrow className="w-[25px] w-[25px]" />
+        // <Link className="z-1" href={`/product/${props.id}`}>
+          <div className={`flex flex-col gap-3  ${props.className}`}>
+            <div className="group flex flex-col dark:bg-primaryDark2 w-64 h-64 shadow-lg rounded-[25px] hover:scale-105 transition-all hover:shadow-2xl">
+              <img
+                src={`${props.img}`}
+                className="w-full h-3/4 rounded-tl-[25px] rounded-tr-[25px] border-2 border-primary dark:border-primaryYellow dark:bg-slate-600 group-hover:border-primaryLight object-contain"
+                alt="product"
+              />
+              <div className="w-full h-1/4 rounded-bl-[25px] rounded-br-[25px]">
+                <div className="flex justify-center mt-1.5  ">
+                  <span className="font-bold">{props.title}</span>
+                  {/* <ProductDecreaseIncrease /> */}
+                </div>
+                <div className="flex justify-center items-center gap-5 -mt-2">
+                  <h6>
+                    <span>{props.price}</span> تومان
+                  </h6>
+                  {/* <YellowCircleArrow className="w-[25px] w-[25px]" /> */}
+                  <Button
+                    className="mt-2 z-10"
+                    color="primary"
+                    size="sm"
+                    radius="large"
+                    onClick={addToCartHandler}
+                  >
+                    <ShoppingCart /> <Plus />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        // </Link>
       )}
     </>
   );

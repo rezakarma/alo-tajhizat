@@ -2,6 +2,7 @@ import z, { boolean, string } from "zod";
 import validator from "validator";
 import { current } from "@reduxjs/toolkit";
 import { Phone } from "lucide-react";
+import { DeliveryTime, DeliveryType } from "@prisma/client";
 
 export const loginSchemaWithNumber = z.object({
   password: z.string().min(1, { message: "رمزعبور الزامی است" }),
@@ -141,23 +142,25 @@ export const addProductAdminSchema = z.object({
       (val) => ({ message: `${val} نام محصول را کامل واردکنید` })
     ),
   description: z.string().min(1, { message: "توضیحات محصول الزامی است" }),
-  model:z.string().min(1,{message: "مدل الزامی است"}).superRefine((value, context) => {
-    if (!englishAlphabet.test(value)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "ققط کلمات انگلیسی وارد کنید",
-      });
-    }
-  }),
+  model: z
+    .string()
+    .min(1, { message: "مدل الزامی است" })
+    .superRefine((value, context) => {
+      if (!englishAlphabet.test(value)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "ققط کلمات انگلیسی وارد کنید",
+        });
+      }
+    }),
   // productImage: z.array(z.string()),
   sellCheckbox: z.boolean().optional(),
   rentCheckbox: z.boolean().optional(),
-  sellPrice: z
-    .string().optional(),
-    rentPrice: z
-    .string().optional(),
-    brand: z.string().min(1,{message: 'انتخاب برند الزامی است'}),
-    category: z.string().min(1,{message: 'انتخاب دسته بندی الزامی است'}),
+  sellPrice: z.string().optional(),
+  rentPrice: z.string().optional(),
+  brand: z.string().min(1, { message: "انتخاب برند الزامی است" }),
+  category: z.string().min(1, { message: "انتخاب دسته بندی الزامی است" }),
+  type: z.string().min(1, { message: "انتخاب نوع الزامی است" }),
   details: z.array(
     z.object({
       title: z.string(),
@@ -166,35 +169,43 @@ export const addProductAdminSchema = z.object({
   ),
 });
 
-const supplyType = z.enum(["SELL", "RENT", "SELL_RENT"]).refine((value) => {
-  if (!["SELL", "RENT", "SELL_RENT"].includes(value)) {
-    return false;
+const supplyType = z.enum(["SELL", "RENT", "SELL_RENT"]).refine(
+  (value) => {
+    if (!["SELL", "RENT", "SELL_RENT"].includes(value)) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message:
+      "نوع تامین محصول باید یکی از گزینه های زیر باشد: SELL, RENT, SELL_RENT",
   }
-  return true;
-}, { message: "نوع تامین محصول باید یکی از گزینه های زیر باشد: SELL, RENT, SELL_RENT" });
+);
 type SupplyType = z.infer<typeof supplyType>;
 
 export const newProductSchema = z.object({
-  title: z
-    .string()
-    .min(1, { message: "نام محصول الزامی است" }),
+  title: z.string().min(1, { message: "نام محصول الزامی است" }),
   description: z.string().min(1, { message: "توضیحات محصول الزامی است" }),
-  productImage: z.array(z.string()).min(1,{message:'لطفا حداقل یک عکس برای محصول اپلود کنید'}),
-  model:z.string().min(1,{message: "مدل الزامی است"}).superRefine((value, context) => {
-    if (!englishAlphabet.test(value)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "ققط کلمات انگلیسی وارد کنید",
-      });
-    }
-  }),
-  sellPrice: z
-    .string().optional(),
-    rentPrice: z
-    .string().optional(),
-    supplyType: supplyType,
-    brand: z.string().min(1,{message: 'انتخاب برند الزامی است'}),
-    category: z.string().min(1,{message: 'انتخاب دسته بندی الزامی است'}),
+  productImage: z
+    .array(z.string())
+    .min(1, { message: "لطفا حداقل یک عکس برای محصول اپلود کنید" }),
+  model: z
+    .string()
+    .min(1, { message: "مدل الزامی است" })
+    .superRefine((value, context) => {
+      if (!englishAlphabet.test(value)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "ققط کلمات انگلیسی وارد کنید",
+        });
+      }
+    }),
+  sellPrice: z.string().optional(),
+  rentPrice: z.string().optional(),
+  supplyType: supplyType,
+  brand: z.string().min(1, { message: "انتخاب برند الزامی است" }),
+  category: z.string().min(1, { message: "انتخاب دسته بندی الزامی است" }),
+  type: z.string().min(1, { message: "انتخاب نوع الزامی است" }),
   details: z.array(
     z.object({
       title: z.string(),
@@ -202,10 +213,6 @@ export const newProductSchema = z.object({
     })
   ),
 });
-
-
-
-
 
 export const userExistCheckSchema = z.object({
   email: z.string().email().optional(),
@@ -594,4 +601,84 @@ export const patchProfile = z.object({
     .optional(),
   photoWithIDCard: z.string().optional(),
   profileImage: z.string().optional(),
+});
+
+export const productCategoryIds = z.object({
+  categoryIds: z.array(z.string().optional()),
+});
+
+const cartActonType = z.enum(["ADD", "REMOVE"]).refine(
+  (value) => {
+    if (!["ADD", "REMOVE"].includes(value)) {
+      return false;
+    }
+    return true;
+  },
+  { message: "نوع اکشنسبد خرید باید یکی از این گزینه ها باشد : ADD , REMOVE" }
+);
+
+export const cartSchema = z.object({
+  actionType: cartActonType,
+  productId: z
+    .string()
+    .min(1, { message: "لطفا یک شناسه ی محصول ارائه دهدید" }),
+});
+
+export const addressSchema = z.object({
+  name: z.string().min(1, { message: "لطفا یک نام برای این آدرس انتخاب کنید" }),
+  address: z.string().min(1, { message: "لطفا یک ادرس وارد کنید" }),
+  plate: z.string().optional(),
+  bldName: z.string().optional(),
+  floor: z.string().optional(),
+  unit: z.string().optional(),
+  city: z.string().min(1, { message: "لطفا یکا شهر انتخاب کنید" }),
+  province: z.string().min(1, { message: "لطفا یک استان انتخاب کنید" }),
+  postalCode: z.string().min(1, { message: "لطفا یککد پستی معتبر وارد کنید" }),
+  coordinate: z.object({
+    lat: z.number(),
+    lng: z.number(),
+  }),
+});
+
+const DeliveryTypeSchema = z.nativeEnum(DeliveryType).refine(
+  (value) => {
+    if (
+      !Object.values(DeliveryType).includes(value) ||
+      value === null ||
+      value === undefined
+    ) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message:
+      "نوع تامین محصول باید یکی از گزینه های زیر باشد: تحویل شخصی، ارسال",
+  }
+);
+
+const DeliveryTimeSchema = z.nativeEnum(DeliveryTime).refine(
+  (value) => {
+    if (
+      !Object.values(DeliveryTime).includes(value) ||
+      value === null ||
+      value === undefined
+    ) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "زمان ارسال محصول باید یکی از گزینه های زیر باشد: شب، بعد از ظهر",
+  }
+);
+
+export const orderSettingSchema = z.object({
+  deliveryTime: DeliveryTimeSchema,
+  deliveryType: DeliveryTypeSchema,
+  addressId: z.string().min(1,{message: "لطفا یک آدرس انتخاب کنید"}),
+  description: z
+    .string()
+    .max(300, { message: "توضیحات باید حداکثر 300 نویسه باشد" })
+    .optional(),
 });

@@ -1,10 +1,11 @@
 import PrimaryButton from "@/components/button/primaryButton";
 import LeftFleshSvg from "../../../../public/assets/equipmentRental/leftFleshSvg";
-
+import {Skeleton} from "@nextui-org/skeleton";
 const HeaderProductInfo = (props) => {
     return ( 
         <div className={`flex flex-col w-[70%] ml-52 items-end gap-4 `}>
-          <div className={`flex flex-col gap-4 items-end ${props.isVisible ? "fade-in-from-left" : ""}`}>
+       
+             <div className={`flex flex-col gap-4 items-end ${props.isVisible ? "fade-in-from-left" : ""}`}>
 
           <h1 className="text-7xl font-extrabold animate-fade-down animate-once dark:text-primaryYellow animate-duration-1000 animate-delay-500 animate-ease-in-out">{props.brand}</h1>
           <h1 className="text-7xl font-extrabold animate-fade-down animate-duration-1000 dark:text-primaryYellow animate-delay-500 animate-ease-in-out">{props.model}</h1>

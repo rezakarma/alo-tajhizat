@@ -1,6 +1,7 @@
 'use client'
 import Link from "next/link";
 
+
 const PrimaryButton = (props) => {
 
     const Title = <div className="flex justify-center items-center gap-2">
@@ -9,7 +10,9 @@ const PrimaryButton = (props) => {
     </div>
 
     return <button onClick={props.onClick ? props.onClick : () => {}} className={props.className}>
-        <Link href={props.href ? props.href : '/'}>{Title}</Link>
+        {/* <Link href={props.href ? props.href : '/equipment-rental'}>
+        </Link> */}
+        {Title}
     </button>
 }
 

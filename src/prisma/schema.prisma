@@ -31,6 +31,7 @@ model User {
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
   orders                   Order[]
+  cart                     Cart?
   comments                 Comment[]
   products                 Product[]
   adminOrder               adminOrder[]
@@ -78,11 +79,13 @@ type BirthDate {
 model Order {
   id            String         @id @default(auto()) @map("_id") @db.ObjectId
   description   String?
-  price         String
-  status        String
+  price         Int
+  address       Address        @relation(fields: [addressId], references: [id])
+  addressId     String         @db.ObjectId
+  status        Status
   discountCode  String?
   adminsOfOrder adminOrder[]
-  userId        String         @unique @db.ObjectId
+  userId        String         @db.ObjectId
   user          User           @relation(fields: [userId], references: [id])
   productsList  orderProduct[]
   deliveryType  DeliveryType
@@ -94,6 +97,14 @@ model Order {
 enum DeliveryType {
   inPerson
   Posting
+}
+
+enum Status {
+  inProgress
+  canceled
+  pendingConfirmation
+  pendingPayment
+  delivered
 }
 
 enum DeliveryTime {
@@ -115,9 +126,9 @@ model adminOrder {
 model orderProduct {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   count     Int
-  orderId   String  @unique @db.ObjectId
-  order     Order   @relation(fields: [orderId], references: [id])
-  productId String  @unique @db.ObjectId
+  orderId   String  @db.ObjectId
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
 }
 
@@ -136,31 +147,32 @@ enum SupplyType {
 }
 
 model Product {
-  id           String           @id @default(auto()) @map("_id") @db.ObjectId
-  images       String[]
-  title        String
-  description  String
-  model        String
-  details      productDetails[]
-  supplyType   SupplyType
-  sellPrice    String?          @default("0")
-  rentPrice    String?          @default("0")
-  status       ProductStatus    @default(ACTIVE)
-  categoryName String
-  category     ProductCategory  @relation(fields: [categoryId], references: [id])
-  categoryId   String           @db.ObjectId
-  typeName String
-  type     ProductType  @relation(fields: [typeId], references: [id])
-  typeId   String           @db.ObjectId
-  brandName    String
-  brand        ProductBrand     @relation(fields: [brandId], references: [id])
-  brandId      String           @db.ObjectId
-  comments     Comment[]
-  orderProduct orderProduct[]
-  userId       String           @db.ObjectId
-  userAdded    User             @relation(fields: [userId], references: [id])
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  images        String[]
+  title         String
+  description   String
+  model         String
+  details       productDetails[]
+  supplyType    SupplyType
+  sellPrice     Int?             @default(0)
+  rentPrice     Int?             @default(0)
+  status        ProductStatus    @default(ACTIVE)
+  categoryName  String
+  category      ProductCategory  @relation(fields: [categoryId], references: [id])
+  categoryId    String           @db.ObjectId
+  typeName      String
+  type          ProductType      @relation(fields: [typeId], references: [id])
+  typeId        String           @db.ObjectId
+  brandName     String
+  brand         ProductBrand     @relation(fields: [brandId], references: [id])
+  brandId       String           @db.ObjectId
+  comments      Comment[]
+  orderProduct  orderProduct[]
+  productInCart ProductInCart[]
+  userId        String           @db.ObjectId
+  userAdded     User             @relation(fields: [userId], references: [id])
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 }
 
 type productDetails {
@@ -192,15 +204,17 @@ model Notifications {
 // 7- address schema 
 model Address {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
   address       String
   plate         String?
-  BldName       String?
+  bldName       String?
   floor         String?
   unit          String?
   city          String
-  state         String
+  province      String
   postalCode    String
-  coordinates   GeoPoint
+  Order         Order[]
+  coordinate    GeoPoint
   userProfileId String   @db.ObjectId
   userProfile   Profile  @relation(fields: [userProfileId], references: [id])
   createdAt     DateTime @default(now())
@@ -208,8 +222,8 @@ model Address {
 }
 
 type GeoPoint {
-  lat String
-  lon String
+  lat Float
+  lng Float
 }
 
 // 8 phonenumber schema 
@@ -293,22 +307,21 @@ model ProductBrand {
 }
 
 model ProductCategory {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
   persianCategory String
-  englishCategory String    @unique
+  englishCategory String        @unique
   products        Product[]
   productTypes    ProductType[]
-  createdAt       DateTime  @updatedAt
+  createdAt       DateTime      @updatedAt
 }
 
 model ProductType {
-  id String  @id @default(auto()) @map("_id") @db.ObjectId
-  persianType String
-  englishType String
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  persianType     String
+  englishType     String
   products        Product[]
-  CategoryId String   @db.ObjectId
-  productCategory   ProductCategory  @relation(fields: [CategoryId], references: [id])
-
+  CategoryId      String          @db.ObjectId
+  productCategory ProductCategory @relation(fields: [CategoryId], references: [id])
 }
 
 model verificationToken {
@@ -342,4 +355,20 @@ model emailForResetPassword {
   resetPasswordId      String[]        @db.ObjectId
 
   @@unique([email, token])
+}
+
+model Cart {
+  id       String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String          @unique @db.ObjectId
+  user     User            @relation(fields: [userId], references: [id])
+  products ProductInCart[]
+}
+
+model ProductInCart {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String  @db.ObjectId
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+  count     Int     @default(1)
 }

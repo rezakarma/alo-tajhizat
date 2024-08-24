@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from "react";
 import {
   Modal,
@@ -33,11 +34,11 @@ const ImageModal = (props) => {
           <Dot3Svg />
         </div>
 
-        <div className="absolute w-[80px] h-[80px] inset-0 rounded-xl bg-gray-200 overflow-hidden">
-          <img
-            src={props.OpenerbgImage}
+        <div className="absolute w-[80px] h-[80px] inset-0 rounded-xl bg-gray-200 overflow-hidden z-1">
+          <Image
+            src={`${process.env.NEXT_PUBLIC_IMAGES_ENDPOINT}/${props.OpenerbgImage}`}
             alt="NextUI Fruit Image with Zoom"
-            className="object-cover w-full h-full filter blur-sm opacity-70"
+            className="object-cover w-full h-full filter blur-sm opacity-70 z-1"
           />
         </div>
       </div>
@@ -59,7 +60,7 @@ const ImageModal = (props) => {
                   isBlurred
                     className="h-[300px] w-[300px] object-contain rounded-2xl"
                     alt="picked image"
-                    src={props.images[pickedImage].img}
+                    src={`${process.env.NEXT_PUBLIC_IMAGES_ENDPOINT}/${props.images[pickedImage]}`}
                   />
                   </div>
                   <div className="flex flex-col gap-10">
@@ -73,7 +74,7 @@ const ImageModal = (props) => {
                         onClick={() => pickImageHandler(index)}
                         className="w-[80px] h-[80px] rounded-xl object-cover"
                         alt="NextUI Fruit Image with Zoom"
-                        src={item.img}
+                        src={`${process.env.NEXT_PUBLIC_IMAGES_ENDPOINT}/${item}`}
                       />
                     ))}
 

@@ -5,11 +5,11 @@ import Main from "./Main";
 
 function page() {
   return (
-    <div>
+    <>
         <Navbar/>
         <Main/>
         <Footer/>
-    </div>
+    </>
   )
 }
 

@@ -6,10 +6,12 @@ import { Select, SelectSection, SelectItem } from "@nextui-org/react";
 const DropDown = (props) => {
   const [isLoading,setLoading] = useState(true)
   useEffect(() => {
-    if(props.options.length > 0) {
+    if(props.options.length > 0 || props.isLoading === true) {
+      setLoading(false)
+    }else if(props.isLoading === false) {
       setLoading(false)
     }
-  },[props.options])
+  },[props.options,props.isLoading])
   return (
     // <div >
     //   <label className="block text-gray-700 text-base font-bold mb-2 dark:text-primaryYellow">
@@ -42,7 +44,7 @@ const DropDown = (props) => {
     <Select
     label={props.label}
     variant="bordered"
-    isLoading={isLoading}
+    isLoading={isLoading || props.isLoading}
     isDisabled={isLoading || props.isPending}
     labelPlacement='outside'
     placeholder={props.placeholder}

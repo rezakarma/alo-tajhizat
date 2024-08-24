@@ -19,11 +19,14 @@ import UploadProductImages from "@/app/utils/uploadProductImages";
 import { stringify } from "postcss";
 import EditProductImage from "../../editProduct/editProductImage";
 import { isError } from "@sentry/utils";
+import GetCategoryTypes, { typeOfRequest } from "@/data/products/getCategoryTypes";
 const initialState = {
   newCategory: "",
   newBrand: "",
+  newType: "",
   brandList: [],
   categoryList: [],
+  typeList: [],
   productImages: [],
   productImagesKeys: [],
   editedProductImage: [],
@@ -31,6 +34,7 @@ const initialState = {
   rentChecked: false,
   formValue: null,
   isLoading: true,
+  isLoadingType: false,
 };
 
 const reducer = (state, action) => {
@@ -43,10 +47,14 @@ const reducer = (state, action) => {
       return { ...state, newCategory: action.payload };
     case "SET_NEW_BRAND":
       return { ...state, newBrand: action.payload };
+    case "SET_NEW_TYPE":
+      return { ...state, newType: action.payload };
     case "SET_CATEGORY_LIST":
       return { ...state, categoryList: action.payload };
     case "SET_BRAND_LIST":
       return { ...state, brandList: action.payload };
+    case "SET_TYPE_LIST":
+      return { ...state, typeList: action.payload };
     case "SET_PRODUCT_IMAGES_KEY":
       return { ...state, productImagesKeys: action.payload };
     case "SET_EDITED_PRODUCT_IMAGES":
@@ -59,6 +67,8 @@ const reducer = (state, action) => {
       return { ...state, sellChecked: action.payload };
     case "SET_RENT":
       return { ...state, rentChecked: action.payload };
+    case "SET_TYPE_LOADING":
+      return { ...state, isLoadingType: action.payload  }
     default:
       return state;
   }
@@ -72,6 +82,7 @@ const AddProductForm = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [data, setData] = useState([{ title: "", description: "" }]);
   const [isPending, startTransition] = useTransition();
+  // const [isLoadingType, setIsLoadingType] = useState(false);
   useEffect(() => {
     const getProduct = async () => {
       const product = await GetProduct(props.productId);
@@ -82,8 +93,8 @@ const AddProductForm = (props) => {
       if (product.supplyType === "SELL") {
         setValue("sellCheckbox", true);
         setValue("rentCheckbox", false);
-        dispatch({type:'SET_SELL', payload: true})
-        dispatch({type:'SET_RENT', payload: false})
+        dispatch({ type: "SET_SELL", payload: true });
+        dispatch({ type: "SET_RENT", payload: false });
       } else if (product.supplyType === "RENT") {
         setValue("sellCheckbox", false);
         setValue("rentCheckbox", true);
@@ -98,9 +109,11 @@ const AddProductForm = (props) => {
       setValue("description", product.description);
       setValue("brand", product.brandId);
       setValue("category", product.categoryId);
+      setValue("type", product.typeId);
       setValue("details", product.details);
       dispatch({ type: "SET_NEW_BRAND", payload: product.brandId });
       dispatch({ type: "SET_NEW_CATEGORY", payload: product.categoryId });
+      dispatch({ type: "SET_NEW_TYPE", payload: product.typeId });
       setData(product.details);
       dispatch({ type: "SET_PRODUCT_IMAGES_KEY", payload: product.images });
       if (product.id) {
@@ -123,6 +136,24 @@ const AddProductForm = (props) => {
     };
     getProductBrandandCategory();
   }, []);
+
+  useEffect(()=> {
+    const getProductCategoryTypes = async ()=> {
+      // setIsLoadingType(true)
+      dispatch({ type: "SET_TYPE_LOADING" , payload: true })
+        const categoryTypes =await GetCategoryTypes(state.newCategory, typeOfRequest.single)
+        
+        dispatch({ type: "SET_TYPE_LIST", payload: categoryTypes });
+        // setIsLoadingType(false)
+      dispatch({ type: "SET_TYPE_LOADING" , payload: false })
+      };
+      
+      if(state.newCategory !== '') {
+        getProductCategoryTypes()
+      }
+      
+    
+  },[state.newCategory])
 
   // const getSupplyType = () => {
   //   if (state.sellChecked && state.rentChecked) {
@@ -160,7 +191,7 @@ const AddProductForm = (props) => {
 
   const setProductImagesKeys = (data) => {
     dispatch({ type: "SET_PRODUCT_IMAGES_KEY", payload: data });
-  }
+  };
 
   const imageDeleteHandler = (img) => {
     const updatedState = images.filter((item) => item[1] !== img);
@@ -190,6 +221,7 @@ const AddProductForm = (props) => {
       rentPrice: "0",
       brand: "",
       category: "",
+      type: "",
       details: [],
       // detailsTitle: "",
       // detailsDescription: "",
@@ -201,6 +233,7 @@ const AddProductForm = (props) => {
     dispatch({ type: "SET_VAlUE", payload: null });
     dispatch({ type: "SET_NEW_CATEGORY", payload: "" });
     dispatch({ type: "SET_NEW_BRAND", payload: "" });
+    dispatch({ type: "SET_NEW_TYPE", payload: "" });
     dispatch({ type: "SET_PRODUCT_IMAGES_KEY", payload: [] });
     setImages([]);
     setPreviewImages([]);
@@ -262,10 +295,10 @@ const AddProductForm = (props) => {
     if (images.length > 0) {
       console.log("run lenght 0");
 
-      if (imageKey.length === images.length) {
-        console.log(imageKey);
-        return imageKey;
-      }
+      // if (imageKey.length === images.length) {
+      //   console.log(imageKey);
+      //   return imageKey;
+      // }
       // const keys = images.map(async (image,index)=> {
       //   const result = await uploadFile(image, folder);
       // if (result.success && result.result.key) {
@@ -319,6 +352,8 @@ const AddProductForm = (props) => {
 
   const uploadEditedImage = async (images, folder) => {
     console.log("run uploadEditedImage");
+    console.log(images)
+    console.log(state.productImagesKeys)
     if (images.length > 0) {
       // if (imageKey.length === images.length) {
       //   console.log(imageKey);
@@ -387,6 +422,7 @@ const AddProductForm = (props) => {
         };
       }
       const response = await result.json();
+      setImages([])
       return response;
     } catch (error) {
       return { error: "خطایی رخ داده است لطفا در زمال دیگری تلاش کنید" };
@@ -426,10 +462,10 @@ const AddProductForm = (props) => {
           toast.success(updatedProduct.success);
         } else if (updatedProduct.error) {
           toast.error(updatedProduct.error);
-        }else if(Array.isArray(updatedProduct)) {
+        } else if (Array.isArray(updatedProduct)) {
           updatedProduct.map((item) => {
-            toast.error(item.message)
-          })
+            toast.error(item.message);
+          });
         }
       } else {
         const sendProduct = await addProduct(productValue);
@@ -528,6 +564,25 @@ const AddProductForm = (props) => {
                   error={errors.category}
                   options={state.categoryList}
                   isPending={isPending}
+                />
+                <DropDown
+                  onChange={(e) => {
+                    dispatch({
+                      type: "SET_NEW_TYPE",
+                      payload: e.target.value,
+                    });
+                    setValue("type", e.target.value);
+                  }}
+                  placeholder="لطفا نوع مورد نظر را انتخاب کنید"
+                  value={state.newType}
+                  englishValueExtractor={(option) => option.englishType}
+                  persianValueExtractor={(option) => option.persianType}
+                  label="نوع"
+                  error={errors.type}
+                  options={state.typeList}
+                  isPending={state.newCategory === "" ? true : isPending}
+                  isLoading={state.isLoadingType}
+                  // isActive={state.newCategory === "" ? true : false}
                 />
               </div>
               <hr />

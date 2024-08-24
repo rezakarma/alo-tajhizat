@@ -3,8 +3,8 @@ import Link from "next/link";
 import {useState} from "react";
 
 
-function SearchBar() {
-  const [search,setSearch] = useState("");
+function SearchBar({search,setSearch}) {
+  // const [search,setSearch] = useState("");
   return (
     <div className="w-[350px] text-lg  ">
       <div className="md:max-w-md lg:col-span-2">     

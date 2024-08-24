@@ -17,6 +17,7 @@ const EditProductImage = ({
     const newImages = images.map((item) => {
       return `${process.env.NEXT_PUBLIC_IMAGES_ENDPOINT}/${item}`;
     });
+    
     setLinkOfImages(newImages);
   }, [images]);
 
@@ -45,9 +46,11 @@ const EditProductImage = ({
         return;
       }
       const imageUrl = selectedImage.map((image) => URL.createObjectURL(image));
-      const newImages = [...images];
+      const newImages = [...linkOfImages];
+      console.log(images)
       newImages[index] = imageUrl;
       setLinkOfImages(newImages);
+      console.log(linkOfImages)
       const existEditedImages = [...editedImages];
       existEditedImages[index] = [...selectedImage, editedItem]
       setEditedImages(existEditedImages);

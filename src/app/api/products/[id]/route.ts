@@ -5,9 +5,15 @@ import { auth } from "@/auth";
 
 
 export async function GET(request: NextRequest,{ params }: { params: {id:string } }) {
+  console.log(params.id, '  params id ')
     try{
         const products = await prisma.product.findUnique({
             where: { id: params.id},
+            include: {
+              category: true,
+              brand: true,
+              type: true,
+            }, 
         });
         if (!products){
             return NextResponse.json({ error: "Product not found" });
@@ -69,6 +75,14 @@ export async function PUT(
     return NextResponse.json({ error: "برند مورد نظر پیدا نشد" });
   }
 
+  const type = await prisma.productType.findUnique({
+    where: { id: body.type },
+  });
+
+  if (!type) {
+    return NextResponse.json({ error: "نوع مورد نظر پیدا نشد" });
+  }
+
   const userAdded = session.user.id;
 
   const newProducts = await prisma.product.update({
@@ -92,6 +106,11 @@ export async function PUT(
       brand: {
         connect: {
           id: brand.id,
+        },
+      },
+      type: {
+        connect: {
+          id: type.id,
         },
       },
       userAdded: {

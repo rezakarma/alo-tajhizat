@@ -1,7 +1,7 @@
+"use client"
 import { Image } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import ImageModal from "./imageModal";
-import { useState } from "react";
 import ProductHeaderImageSection from "./producHeaderImageSection";
 import ProductHeaderTextSection from "./productHeaderTextSection";
 import ProductHeaderCardSection from "./productHeaderCardSection";
@@ -32,8 +32,7 @@ const proData = [
   },
 ];
 
-const ProductHeader = () => {
-  const [pickedImage, setPickedImage] = useState(0);
+const ProductHeader = ({description, rentPrice , brand, model, images,title, details}) => {
   const pathName = usePathname();
   console.log(pathName);
   const separatedPath = pathName.split("/");
@@ -48,9 +47,9 @@ const ProductHeader = () => {
       {/* <h1>http://alo-tajhizat/{pathName}</h1> */}
       <div className="flex flex-col gap-10">
         <div className="flex flex-col lg:flex-row justify-evenly">
-          <ProductHeaderImageSection />
-          <ProductHeaderTextSection />
-          <ProductHeaderCardSection />
+          <ProductHeaderImageSection images={images} title={title} />
+          <ProductHeaderTextSection description={description} rentPrice={rentPrice} brand={brand} model={model}/>
+          <ProductHeaderCardSection details={details}/>
         </div>
         <ProductFeaturesSection />
         {/* <Divider className="mb-4 h-1 rounded-full w-[95%] mx-auto" /> */}

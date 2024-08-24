@@ -41,7 +41,7 @@ const EditCategory = (props) => {
     if (props.category) {
       dispatch({
         type: "SET_CURRENT_ENGLISH_CATEGORY",
-        payload: props.category.englishCategory,
+        payload: props.category.englishName,
       });
       dispatch({
         type: "SET_CURRENT_PERSIAN_CATEGORY",
@@ -168,7 +168,7 @@ const EditCategory = (props) => {
         color="primary"
         isLoading={isPending}
       >
-        تغییر برند
+        تغییر دسته بندی
       </Button>
     </form>
   );

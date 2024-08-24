@@ -141,7 +141,7 @@ export const columns: ColumnDef<Brand>[] = [
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
-                  آیا شما از حذف برند {row.original.englishBrand} مطعن هستید؟
+                  آیا شما از حذف برند {row.original.englishName} مطعن هستید؟
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-right">
                   این کار باعث میشود تمام محصولاتی که از این برند استفاده میکنند

@@ -4,6 +4,7 @@ import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
   authRoutes,
+  productRoute,
   publicRoutes,
 } from "./route";
 
@@ -15,11 +16,30 @@ export default auth((req) => {
   console.log('login: ', isLoggedIn)
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+
+  const isProductRoute = nextUrl.pathname.startsWith(productRoute)
+
   const isPublicRoutes = publicRoutes.includes(nextUrl.pathname);
+
+  // const isPublicRoutes = publicRoutes.some((route) => {
+  //   if (typeof route === 'string') {
+  //     return nextUrl.pathname === route;
+  //   } else {
+  //     return route(nextUrl.pathname);
+  //   }
+  // });
+
+  
+
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   if (isApiAuthRoute) {
     return null;
   }
+
+  if(isProductRoute){
+    return null;
+  }
+  
 
   if (isAuthRoute) {
     if (isLoggedIn) {
@@ -31,6 +51,8 @@ export default auth((req) => {
   if(!isLoggedIn && !isPublicRoutes) {
     return Response.redirect(new URL("/login", nextUrl));
   }
+
+  
 
   return null
 

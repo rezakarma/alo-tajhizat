@@ -1,7 +1,6 @@
 import { profileActions } from "./profile-slice";
 import { profileEditMoadalAction } from "./profileEditModal-slice";
 import { uiActions } from "./ui-slice";
-import { auth } from "@/auth";
 export const fetchProfileData = () => {
   return async (dispatch) => {
     const fetchData = async () => {

@@ -15,8 +15,16 @@ export const publicRoutes = [
   "/admin/product/addProductSettings",
   "/api/get-session",
   "/api/products",
+  "/api/get-products-id",
+  // "/api/products",
+  // "/api/products/",
+  // "/api/products/6685214d745ea6c5a696084d",
+  // (route) => route.startsWith('/api/products/'),
 
 ];
+
+
+export const productRoute = '/api/products'
 
 /**
  * @type {string[]}
