@@ -18,13 +18,16 @@ interface Item {
 }
 import { Trash2, Pencil } from "lucide-react";
 import { Button } from "@nextui-org/react";
-import MapView from "./mapView";
+// import MapView from "./mapView";
+const MapView = dynamic(() => import('./mapView'), { ssr: false });
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import AddAddressForm from "./addAddressForm";
 import { profileEditMoadalAction } from "@/store/profileEditModal-slice";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 const deleteItem = async (id: string) => {
   const result = await fetch(`/api/address/${id}`, {
     method: "DELETE",

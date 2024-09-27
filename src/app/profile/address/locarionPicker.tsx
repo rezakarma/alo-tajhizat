@@ -1,4 +1,8 @@
 "use client";
+import dynamic from "next/dynamic";
+
+// Import dynamically without SSR
+const MapView = dynamic(() => import('./mapView'), { ssr: false });
 import {
   Modal,
   ModalContent,
@@ -9,7 +13,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useState } from "react";
-import MapView from "./mapView";
+// import MapView from "./mapView";
 import { toast } from "sonner";
 
 const LoactionPicker = ({ location, setLocation }) => {

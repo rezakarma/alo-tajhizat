@@ -1,13 +1,33 @@
 "use client";
-import {
-  LayersControl,
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
+import dynamic from "next/dynamic";
+
+// import {
+//   LayersControl,
+//   MapContainer,
+//   Marker,
+//   Popup,
+//   TileLayer,
+//   useMap,
+//   useMapEvents,
+// } from "react-leaflet";
+
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+const useMapEvents = dynamic(
+  () => import("react-leaflet").then((mod) => mod.useMapEvents),
+  { ssr: false }
+);
+
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
