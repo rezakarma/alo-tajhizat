@@ -1,3 +1,4 @@
+"use client";
 interface Item {
   id: string;
   address: string;

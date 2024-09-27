@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@nextui-org/react";
 import { useMapEvents } from "react-leaflet";
 import { LocateFixed } from "lucide-react";

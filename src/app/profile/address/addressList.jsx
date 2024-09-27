@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { ScrollShadow } from "@nextui-org/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,8 +22,10 @@ const getAdresses = async () => {
 };
 
 const AddressList = () => {
-
-  const {isPending, isError, data, error} = useQuery({ queryKey: ["addresses"], queryFn: getAdresses });
+  const { isPending, isError, data, error } = useQuery({
+    queryKey: ["addresses"],
+    queryFn: getAdresses,
+  });
 
   // const [addresses, setAddresses] = useState();
   // useEffect(() => {
