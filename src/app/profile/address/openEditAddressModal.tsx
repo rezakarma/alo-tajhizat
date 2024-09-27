@@ -1,3 +1,4 @@
+"use client"
 const OpenEditAddressModal = () => {
     return ( 
         <div>

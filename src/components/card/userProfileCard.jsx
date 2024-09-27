@@ -1,3 +1,4 @@
+"use client"
 import { Divider } from "@nextui-org/react";
 
 const UserProfileCard = (props) => {
