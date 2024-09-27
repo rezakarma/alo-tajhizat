@@ -5,28 +5,33 @@ import ProductFeaturesSection from "./productHeader/productFeaturesSection";
 import ProductInfos from "./productInfos/productInfos";
 import ProductSuggestion from "./productSuggestion";
 import { Footer } from "@/components/footer/footer";
-
+export const dynamicParams = true;
 export async function generateStaticParams() {
-  const result = await fetch("http://localhost:3000/api/get-products-id");
-  if (!result.ok) {
-    return [];
-  }
-  const response = await result.json();
-  return response;
+  // const result = await fetch(
+  //   `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/get-products-id`
+  // );
+  // if (!result.ok) {
+  //   return [];
+  // }
+  // const response = await result.json();
+  // return response;
+
+  return []
 }
 
 async function getProduct(params) {
   console.log(params.id, " this is the id");
   const result = await fetch(
-    `http://localhost:3000/api/products/${params.id}`,  { cache: 'no-store' }
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/${params.id}`,
+    { cache: "no-store" }
   );
   if (!result.ok) {
     return [];
   }
   console.log(result, " this is result of product fetch");
   console.log(result.headers, "headers");
-console.log(result.status, "status");
-console.log(result.statusText, "status text");
+  console.log(result.status, "status");
+  console.log(result.statusText, "status text");
   const response = await result.json();
   return response;
 }
@@ -65,7 +70,7 @@ const ProductPage = async ({ params }) => {
         />
       </div>
       <div className="lg:h-full lg:w-full lg:flex lg:justify-center lg:mt-10">
-        <ProductSuggestion categoryId={product.category.id}/>
+        <ProductSuggestion categoryId={product.category.id} />
       </div>
       <Footer />
     </>
