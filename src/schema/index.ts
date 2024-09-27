@@ -2,7 +2,7 @@ import z, { boolean, string } from "zod";
 import validator from "validator";
 import { current } from "@reduxjs/toolkit";
 import { Phone } from "lucide-react";
-import { DeliveryTime, DeliveryType } from "@prisma/client";
+import { DeliveryTime, DeliveryType, Status } from "@prisma/client";
 
 export const loginSchemaWithNumber = z.object({
   password: z.string().min(1, { message: "رمزعبور الزامی است" }),
@@ -673,12 +673,47 @@ const DeliveryTimeSchema = z.nativeEnum(DeliveryTime).refine(
   }
 );
 
+const OrderStatusSchema = z.nativeEnum(Status).refine(
+  (value) => {
+    if (
+      !Object.values(Status).includes(value) ||
+      value === null ||
+      value === undefined
+    ) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "وضیعت سفارش معتبر نیست",
+  }
+);
+
 export const orderSettingSchema = z.object({
   deliveryTime: DeliveryTimeSchema,
   deliveryType: DeliveryTypeSchema,
-  addressId: z.string().min(1,{message: "لطفا یک آدرس انتخاب کنید"}),
+  addressId: z.string().min(1, { message: "لطفا یک آدرس انتخاب کنید" }),
   description: z
     .string()
     .max(300, { message: "توضیحات باید حداکثر 300 نویسه باشد" })
     .optional(),
+});
+
+export const orderEditSchema = z.object({
+  deliveryTime: DeliveryTimeSchema,
+  deliveryType: DeliveryTypeSchema,
+  productsList: z
+    .object({
+      id: z.string().nullable().optional(),
+      orderId: z.string(),
+      productId: z.string(),
+      count: z.number(),
+      price: z.number().nullable().optional(),
+    })
+    .array()
+    .nonempty({
+      message: "لیست محصولات سفارش نمیتواند خالی باشد!",
+    })
+    .optional()
+    .nullable(),
 });

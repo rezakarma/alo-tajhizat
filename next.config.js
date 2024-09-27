@@ -12,6 +12,17 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'alotajhizat.storage.iran.liara.space',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
   
 }
 

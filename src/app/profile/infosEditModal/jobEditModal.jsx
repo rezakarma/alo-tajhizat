@@ -46,10 +46,6 @@ const JobEditModal = (props) => {
   const reduxDispatch = useDispatch();
 
   useEffect(() => {
-
-  }, [reduxDispatch]);
-
-  useEffect(() => {
     // handleCurrentPhoneNumber();
     if (user) {
     dispatch({ type: "SET_CURRENT_JOB", payload: user.profile.job });

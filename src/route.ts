@@ -16,15 +16,14 @@ export const publicRoutes = [
   "/api/get-session",
   "/api/products",
   "/api/get-products-id",
+  "/api/create-payment-intent",
   // "/api/products",
   // "/api/products/",
   // "/api/products/6685214d745ea6c5a696084d",
   // (route) => route.startsWith('/api/products/'),
-
 ];
 
-
-export const productRoute = '/api/products'
+export const productRoute = "/api/products";
 
 /**
  * @type {string[]}
@@ -44,9 +43,8 @@ export const authRoutes = [
   "/forgot-password",
   "/api/reset-password",
   "/auth/new-password",
-  "/api/new-password",  
+  "/api/new-password",
   "/api/ContactUs",
-
 ];
 
 /**

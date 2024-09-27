@@ -49,7 +49,6 @@ const Navbar = () => {
   const session = useSession();
 
   // console.log(user)
-  console.log(session);
 
   const homeNavHandler = () => {
     if (pathname === "/") {

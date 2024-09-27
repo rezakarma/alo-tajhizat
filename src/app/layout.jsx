@@ -23,20 +23,21 @@ export default function RootLayout({ children }) {
       <QueryClientProvider client={queryClient}>
         <html className={vazirFont.className} lang="en">
           <body>
-            <ReduxProvider>
-              <Providers>
-                <ProgressBar
-                  height="4px"
-                  color="#00AFC1"
-                  options={{ showSpinner: false }}
-                  shallowRouting
-                />
-                {mounted && <ThemeSwitcher />}
-                {/* <ThemeSwitcher /> */}
-                {children}
-              </Providers>
-              <Toaster richColors />
-            </ReduxProvider>
+              <ReduxProvider>
+                <Providers>
+                  <ProgressBar
+                    height="4px"
+                    color="#00AFC1"
+                    options={{ showSpinner: false }}
+                    shallowRouting
+                  />
+                  {mounted && <ThemeSwitcher />}
+                  {/* <ThemeSwitcher /> */}
+                  {children}
+                </Providers>
+                <Toaster richColors />
+              </ReduxProvider>
+          
           </body>
         </html>
       </QueryClientProvider>

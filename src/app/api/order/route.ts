@@ -4,6 +4,83 @@ import prisma from "../../../prisma/client";
 import GetUserProfileId from "@/app/utils/getUserProfileId";
 import { auth } from "@/auth";
 import { NextApiRequest } from "next";
+import { Status } from "@prisma/client";
+import isEnumValue from "@/app/utils/isValidEnumValue";
+
+type WhereOfGet = {
+  status: Status | null;
+  cursor: string | null;
+  userId: string | null;
+};
+
+export const GET = async (request: NextApiRequest) => {
+  try {
+    const userProfileId = await GetUserProfileId("سفارش");
+    if (typeof userProfileId !== "string") {
+      return userProfileId;
+    }
+
+    const session = await auth();
+    const userId = session.user.id;
+
+    const url = new URL(request.url, `http://${request.headers.host}`);
+    const status = url.searchParams.get("status") as Status | undefined;
+
+    let cursor = url.searchParams.get("cursor");
+    let limit = url.searchParams.get("limit");
+    const where = {} as WhereOfGet;
+
+    if (status && Object.values(Status).includes(status)) {
+      where.status = status;
+    }
+
+    if (!cursor) {
+      cursor = "0";
+    }
+
+    if (!limit) {
+      limit = "1";
+    }
+
+    if (userId) {
+      where.userId = userId;
+    }
+
+    const orders = await prisma.order.findMany({
+      where,
+      take: parseInt(limit),
+      skip: parseInt(cursor) * parseInt(limit),
+      include: {
+        productsList: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                images: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const nextCursor =
+      orders.length === 0
+        ? null
+        : parseInt(cursor) * parseInt(limit) + parseInt(limit);
+
+    return NextResponse.json({
+      data: orders,
+      nextCursor,
+    });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({
+      error: "در هنگام دریافت سفارش ها خطایی رخ داده است",
+    });
+  }
+};
 
 export const POST = async (request: NextRequest, response: NextResponse) => {
   try {
@@ -69,6 +146,7 @@ export const POST = async (request: NextRequest, response: NextResponse) => {
           createMany: {
             data: userCart.products.map((product) => ({
               count: product.count,
+              price: product.product.rentPrice,
               productId: product.productId,
             })),
           },
@@ -91,32 +169,84 @@ export const POST = async (request: NextRequest, response: NextResponse) => {
   }
 };
 
-export const GET = async () => {
-  const session = await auth();
-  const userId = session.user.id;
+export const PATCH = async (request: NextApiRequest) => {
+  try {
+    const userProfileId = await GetUserProfileId("سفارش");
+    if (typeof userProfileId !== "string") {
+      return userProfileId;
+    }
 
-  const userCart = await prisma.cart.findUnique({
-    where: { userId: userId },
-    include: {
-      products: {
-        include: {
-          product: {
-            select: {
-              rentPrice: true,
-            },
-          },
-        },
+    const session = await auth();
+    const userId = session.user.id;
+
+    const url = new URL(request.url, `http://${request.headers.host}`);
+    const status = url.searchParams.get("status") as Status;
+    const orderId = url.searchParams.get("orderId");
+
+    if (!status || !orderId) {
+      return NextResponse.json({
+        error: "آیدی سفارش یا وضیعت مورد نظر ارائه نشده است",
+      });
+    }
+
+    if (!isEnumValue(Status, status)) {
+      return NextResponse.json({ error: "وضیعت ارائه شده معتبر نیست" });
+    }
+
+    const orderBelongToUser = await prisma.order.findFirst({
+      where: { id: orderId, userId },
+    });
+
+    if (!orderBelongToUser) {
+      return NextResponse.json({
+        error: "سفارش مئرد نظر در حساب شما پیدا نشد",
+      });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: "canceled",
       },
-    },
-  });
+    });
 
-  // const cartSum = userCart.products.reduce((sum, product) => {
-  //   return sum + product.product.rentPrice * product.count;
-  // }, 0);
-
-  if (!userCart) {
-    return NextResponse.json({ error: "سبد خرید شما خالی است" });
+    return NextResponse.json({ success: "سفارش با موفقیت لغو شد" });
+  } catch (error) {
+    return NextResponse.json({ error: "در هنگام لغو سفارش خطایی رخ داده است" });
   }
-
-  return NextResponse.json(userCart);
 };
+
+// export const GET = async () => {
+//   const session = await auth();
+//   const userId = session.user.id;
+
+//   const userCart = await prisma.cart.findUnique({
+//     where: { userId: userId },
+//     include: {
+//       products: {
+//         include: {
+//           product: {
+//             select: {
+//               rentPrice: true,
+//             },
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   // const cartSum = userCart.products.reduce((sum, product) => {
+//   //   return sum + product.product.rentPrice * product.count;
+//   // }, 0);
+
+//   if (!userCart) {
+//     return NextResponse.json({ error: "سبد خرید شما خالی است" });
+//   }
+
+//   return NextResponse.json(userCart);
+// };
+
+
+// function echo<T>(arg: T): T {
+//   return arg;
+// }

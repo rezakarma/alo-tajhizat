@@ -17,6 +17,7 @@ const search = url.searchParams.get('search');
 let page = url.searchParams.get('page');
 let limit = url.searchParams.get('limit');
 
+
   console.log(category, brand, type, order, priceRange, search, page, limit);
   // Now you can use the extracted query params
   // console.log(' qyeryyy ',category, brand, type, order, priceRange, search, page, limit);

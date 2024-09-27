@@ -90,8 +90,16 @@ model Order {
   productsList  orderProduct[]
   deliveryType  DeliveryType
   deliveryTime  DeliveryTime
+  stripePayment StripeIntent?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+}
+
+type StripeIntent {
+  id String
+  amount Int
+  client_secret String
+  status String
 }
 
 enum DeliveryType {
@@ -114,11 +122,11 @@ enum DeliveryTime {
 
 model adminOrder {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  orderId        String   @unique @db.ObjectId
+  orderId        String   @db.ObjectId
   Order          Order    @relation(fields: [orderId], references: [id])
-  userId         String   @unique @db.ObjectId
+  userId         String   @db.ObjectId
   responderAdmin User     @relation(fields: [userId], references: [id])
-  logOfAction    String?
+  logOfAction    String[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -126,6 +134,7 @@ model adminOrder {
 model orderProduct {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   count     Int
+  price     Int?
   orderId   String  @db.ObjectId
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String  @db.ObjectId

@@ -7,6 +7,7 @@ import uiSlice from "./ui-slice";
 import filteringSlice from "./filtering-slice";
 import categoryListSlice from "./categoryList-slice";
 import cartSlice from "./cart-slice";
+import dragAndDropSlice from "./drandAndDrop-slice";
 const store = configureStore({
   reducer: {
     products: productsSlice.reducer,
@@ -17,6 +18,7 @@ const store = configureStore({
     filtering: filteringSlice.reducer,
     categoryList: categoryListSlice.reducer,
     cart: cartSlice.reducer,
+    dragAndDrop: dragAndDropSlice.reducer,
   },
 });
 
